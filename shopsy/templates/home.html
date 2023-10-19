@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load static %}
+{% load cart %}
+{% block title %}
+Home-Page
+{% endblock title %}
+{% block content %}
+        {% comment %} this is for category {% endcomment %}
+                <div class="row text-center">
+                    {% for cat in category_obj %}
+                            <div class="col">
+                                <a href="?cat_id={{cat.id}}">
+                                    <img src="{{cat.cat_image.url}}" alt="{{cat.cat_image.url}}" width="50" height="50">
+                                    <br>
+                                    <h6>{{cat.cat_name}}</h6>
+                                </a>
+                            </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+    {% comment %} this is for products {% endcomment %}
+    <div class="container my-3 text-center">
+        <div class="row text-center">
+                {% for pro in product_obj %}
+                <div class="col">
+                    <div class="card abc" style="width: 18rem;">
+                            <img src="{{pro.product_image.url}}" class="card-img-top" alt="..." width=150 height=150>
+                            <div class="card-body">
+                                <h5 class="card-title">{{pro.product_name}}</h5>
+                                <h5 class="card-title">Rs.{{pro.product_price}}</h5>
+                                <p class="card-text">{{pro.product_desc}}</p>
+                                
+                            </div>
+                             <div class="card-footer text-body-secondary">
+                                {% if pro|isexistincart:request.session.cart %}
+                                    <div class="row">
+                                        <div class="col-2">
+                                             <form action="#" method="post">
+                                    {% csrf_token %}
+                                    <input type="text" name="product_id" value={{pro.id}} hidden>
+                                    <input type="text" name="remove" value={{pro.id}} hidden>
+                                    <input type="submit" class="btn btn-primary" value="-">
+                                </form>
+                                        </div>
+                                        <div class="col-8">
+                                            {{pro|cartquantity:request.session.cart}}
+                                        </div>
+                                        <div class="col-2">
+                                             <form action="#" method="post">
+                                    {% csrf_token %}
+                                    <input type="text" name="product_id" value={{pro.id}} hidden>
+                                    <input type="submit" class="btn btn-primary" value="+">
+                                </form>
+                                        </div>
+                                    </div>
+                                
+                                {% else %}
+
+                                <form action="#" method="post">
+                                    {% csrf_token %}
+                                    <input type="text" name="product_id" value={{pro.id}} hidden>
+                                    <input type="submit" class="btn btn-primary" value="Add to cart">
+                                </form>
+                                {% endif %} 
+                            </div>
+                    </div>
+                    </div>
+                {% endfor %}
+        </div>
+    </div>
+    
+ {% if error%}
+    <script>
+        window.onload = function(){
+    var button = document.getElementById('a');
+    button.click();
+}
+    </script>
+{% elif error_message %}
+<script>
+        window.onload = function(){
+    var button = document.getElementById('b');
+    button.click();
+}
+    </script>
+    {% endif %}
+{% endblock content %}

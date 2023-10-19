@@ -1,0 +1,230 @@
+<!doctype html>
+{% load static %}
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>
+
+    {% block title %}{% endblock title %}
+
+  </title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  <link rel="stylesheet" href="{% static "css/style.css" %}">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+</head>
+
+<body>
+  <div class="container">
+    <nav class="navbar navbar-expand-lg bg-warning">
+      <div class="container-fluid">
+        {% if request.session.name %}
+             <a class="navbar-brand" href="{% url "home" %}">{{request.session.name}}</a>
+        {% else %}
+             <a class="navbar-brand" href="{% url "home" %}">E-Shop</a>
+        {% endif %}
+       
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="{% url "home" %}">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Contact</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                Category
+              </a>
+              <ul class="dropdown-menu">
+                {% for cat in category_obj %}
+               
+                <li><a class="dropdown-item" href="?cat_id={{cat.id}}">{{cat.cat_name}}</a></li>
+                
+               {% endfor %}
+              </ul>
+            </li>
+            
+          </ul>
+          <form class="d-flex" role="search">
+            <input class="form-control me-2" type="search" name="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success" type="submit">Search</button>
+          </form>
+          {% if request.session.cart|length %}
+          <a href="{% url "cart" %}" class="btn btn-primary position-relative mx-3">
+            <i class="bi bi-cart"></i>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+              {{request.session.cart|length}}
+
+            </span>
+          </a>
+          {% else %}
+          <button type="button" class="btn btn-primary position-relative mx-3">
+            <i class="bi bi-cart"></i>
+          </button>
+          {% endif %}
+
+        </div>
+        <!-- Button trigger modal -->
+        {% if request.session.name %}
+          <a href="{% url "logout" %}" class="btn btn-primary me-3" >Logout</a>
+          <a href="{% url "order" %}" class="btn btn-primary me-3" >Order</a>
+        {% else %}
+        <button type="button" class="btn btn-primary me-3" id="b" data-bs-toggle="modal" data-bs-target="#login">
+  Login
+</button> 
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" id="a" data-bs-toggle="offcanvas" data-bs-target="#signup">
+  Sign up
+</button>
+        {% endif %}
+
+      </div>
+    </nav>
+  </div>
+  <!-- Modal -->
+<div class="modal fade" id="login" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Login</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+        <div class="col rounded mx-auto border pt-4">
+            <h3 class="alert alert-success rounded-pill" style="text-align:center" >Login</h3>
+            <form action="{% url "login" %}" method="POST">
+
+                {% csrf_token %}
+
+               {% if error_message %}
+                <div class="alert alert-danger" role="alert">
+                    {{error_message}}
+                </div>
+                {% endif %}
+                <!-- email -->
+                <div class="form-group">
+                    <label for="">Email</label>
+                    <input required type="email" name="email" id=""
+                    value="{{values.email}}" 
+                    class=" form-control-sm form-control" placeholder="abc@gmail.com">
+                </div>
+
+
+                <!-- password -->
+                <div class="form-group">
+                    <label for="">Password</label>
+                    <input type="password" 
+                    name="password" 
+                    id=""
+                     class="form-control form-control-sm" >
+                </div>
+
+              
+                <hr>
+                <button type="submit" class="btn btn-sm btn-success col-lg-12">Login</button>
+            </form>
+        </div>
+    </div>
+      </div>
+      
+    </div>
+  </div>
+</div>
+{% comment %} modal for sign up {% endcomment %}
+<!-- Modal -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="signup" aria-labelledby="offcanvasRightLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="offcanvasRightLabel">Registration</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="row">
+
+        
+        <div class="col rounded mx-auto border pt-4">
+            
+            <h3 class="alert alert-success rounded-pill" style="text-align:center">Create an Account</h3>
+            <form action="{% url "signup" %}" method="post">
+                
+                {% csrf_token %}
+
+               {% if error %}
+                <div class="alert alert-danger" role="alert">
+                    {{error}}
+                </div>
+                {% endif %} 
+                <!-- firstname -->
+                <div class="form-group">
+                    <label for="">First Name</label>
+                    <input type="text" name="firstname"
+                     id="" value="{{values.first_name}}" class="form-control form-control-sm" 
+                     placeholder="">
+                </div>
+
+                <!-- last name -->
+                <div class="form-group">
+                    <label for="">Last Name</label>
+                    <input type="text" name="lastname" 
+                    id="" value="{{values.last_name}}" class="form-control form-control-sm"
+                    >
+                </div>
+
+                <!-- phone -->
+                <div class="form-group">
+                    <label for="">Phone</label>
+                    <input type="text" name="phone" 
+                    id="" class="form-control form-control-sm"
+                    value="{{values.phone}}"
+                    placeholder="9876543210"
+                    >
+                </div>
+                <!-- email -->
+                <div class="form-group">
+                    <label for="">Email</label>
+                    <input required type="email" name="email" id=""
+                    value="{{values.email}}" 
+                    class=" form-control-sm form-control" placeholder="abc@gmail.com">
+                </div>
+
+
+                <!-- password -->
+                <div class="form-group">
+                    <label for="">Password</label>
+                    <input type="password" 
+                    name="password" 
+                    id=""
+                     class="form-control form-control-sm">
+                </div>
+                <br>
+                <div class="form-group">
+                    <label for="">Gender</label>
+                    <input type="radio" name="gender" id="" value= "male" class="mx-3">Male
+                    <input type="radio" name="gender" id="" value="female" class="mx-3">Female
+                </div>
+
+               
+                <hr>
+                <button type="submit" class="btn btn-sm btn-success col-lg-12">Create an account</button>
+
+            </form>
+        </div>
+    </div>
+  </div>
+</div>
+  {% block content %}{% endblock content %}
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+    crossorigin="anonymous"></script>
+</body>
+
+</html>
